@@ -1,0 +1,95 @@
+FROM mongo:4.2
+
+FROM ubuntu:16.04
+
+# docker build -f Dockerfile_test -t ruby_appoptics .
+
+# docker-compose run --service-ports ruby_appoptics_apm /code/ruby-appoptics/read_travis_yml.rb [true]
+# use true to start up conatiner and install oboe
+
+# install OS packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       apt-utils \
+       curl \
+       git-core \
+       gnupg \
+       libpcre3-dev \
+       libreadline-dev \
+       libsasl2-dev \
+       libssl-dev \
+       openjdk-8-jdk \
+       zlib1g-dev \
+       libcurl4-gnutls-dev \
+       libmysqlclient-dev \
+       libpq-dev \
+       sqlite3 \
+       vim \
+       less \
+       tcl \
+       tree \
+       psmisc \
+       wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# rbenv setup
+# use rbenv-default-gems to automatically install bundler for each ruby version
+RUN  git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
+     && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build \
+     && git clone https://github.com/rbenv/rbenv-default-gems.git ~/.rbenv/plugins/rbenv-default-gems \
+     && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.profile \
+     && echo 'eval "$(rbenv init -)"' >> ~/.profile \
+     && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
+     && echo 'bundler' > ~/.rbenv/default-gems
+
+RUN echo 'alias be="bundle exec"' >> ~/.bashrc
+RUN echo 'alias be="bundle exec"' >> ~/.profile
+
+# install rubies to build our gem against
+RUN . ~/.profile \
+    && cd /root/.rbenv/plugins/ruby-build && git pull && cd - \
+    && rbenv install 2.6.4 \
+    && rbenv install 2.7.0-preview1
+
+# need to revert to using bundler 1.17.3 because some gems require bundler < 2.0
+#RUN . ~/.profile && rbenv local 2.4.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.5.5 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+#RUN . ~/.profile && rbenv local 2.6.4 && gem uninstall bundler --quiet -x && gem install bundler -v 1.17.3
+
+RUN echo 'gem: --no-document' >> ~/.gemrc
+
+# install redis-server version 4++
+#RUN curl -SL http://download.redis.io/releases/redis-4.0.0.tar.gz | tar xzC /tmp \
+#    && cd /tmp/redis-4.0.0/ \
+#    && make  && make install && cd -
+
+
+# install postgres and memcached
+#RUN apt-get update \
+#    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+#       memcached \
+#       postgresql \
+#       postgresql-contrib \
+#    && service postgresql start \
+#    && echo "psql --command \"CREATE USER docker WITH SUPERUSER PASSWORD 'docker';\"" >> /tmp/config \
+#    && echo "createdb -O docker travis_ci_test" >> /tmp/config \
+#    && su postgres -c "bash /tmp/config" \
+#    && rm -f /tmp/config
+
+#RUN apt-get update && \
+#	apt-get -y install mysql-client libmysqlclient-dev
+
+ENV PATH="/root/.rbenv/bin:/root/.rbenv/shims:$PATH"
+ENV RUBY_ENV=test
+#ENV DOCKER_PSQL_PASS=docker
+#ENV APPOPTICS_TOKEN_BUCKET_CAPACITY=10000
+#ENV APPOPTICS_TOKEN_BUCKET_RATE=10000
+#ENV SIMPLECOV_COVERAGE=true
+
+# replicate stdout of tests to file in local log directory
+#ENV TEST_RUNS_TO_FILE=true
+
+WORKDIR /code/graphql-ruby
+
+CMD /bin/bash

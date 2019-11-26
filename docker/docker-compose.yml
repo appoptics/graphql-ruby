@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+  ruby_graphql:
+    container_name: ruby_graphql
+    image: ruby_graphql
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
+    mem_limit: 1G
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../:/code/graphql-ruby
+    working_dir: /code/graphql-ruby
