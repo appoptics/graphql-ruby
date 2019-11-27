@@ -140,3 +140,29 @@ namespace :js do
 
   task all: [:install, :test]
 end
+
+namespace :docker do
+  # the docker container has the graphql_code mounted, all editing on the host
+  # or the container will be reflected on both sides, this is very handy for
+  # setting debug points or temporarily adding print statements
+  desc "Start a docker container and run all tests"
+  task :tests do
+    Dir.chdir('docker') do
+      exec('docker-compose run ruby_graphql /code/ruby-graphql/docker/run_tests.sh test')
+    end
+  end
+
+  desc "Start a docker container for interactive testing and debugging"
+  task :bash do
+    Dir.chdir('docker') do
+      exec('docker-compose run ruby_graphql /code/ruby-graphql/docker/run_tests.sh bash')
+    end
+  end
+
+  desc "Stop all containers that were started for testing and debugging"
+  task :down do
+    Dir.chdir('docker') do
+      exec('docker-compose down  --remove-orphans')
+    end
+  end
+end
