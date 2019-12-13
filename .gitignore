@@ -22,3 +22,6 @@ yarn.lock
 OperationStoreClient.js
 spec/integration/tmp
 .vscode/
+/.byebug_history
+/spec/dummy/.*
+/guides/.jekyll-cache/*
