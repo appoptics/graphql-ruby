@@ -22,17 +22,19 @@ matrix:
     rvm: 2.6.2
     services:
       - xvfb
-#    addons:
-#      apt:
-#        sources:
-#          - google-chrome
-#        packages:
-#          - google-chrome-stable
+    addons:
+      apt:
+        sources:
+          - google-chrome
+        packages:
+          - google-chrome-stable
     before_install:
       - export CHROMEDRIVER_VERSION=`curl -s http://chromedriver.storage.googleapis.com/LATEST_RELEASE`
       - curl -L -O "http://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
       - unzip chromedriver_linux64.zip && chmod +x chromedriver && sudo mv chromedriver /usr/local/bin
-      - sudo apt-get update && sudo apt-get -y install google-chrome-stable
+      - sudo curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
+      - sudo echo "deb [arch=amd64]  http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+#      - sudo apt-get update && sudo apt-get -y install google-chrome-stable
 #    addons:
 #      apt:
 #        update: true
