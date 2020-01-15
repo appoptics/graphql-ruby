@@ -32,7 +32,7 @@ matrix:
       - export CHROMEDRIVER_VERSION=`curl -s http://chromedriver.storage.googleapis.com/LATEST_RELEASE`
       - curl -L -O "http://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
       - unzip chromedriver_linux64.zip && chmod +x chromedriver && sudo mv chromedriver /usr/local/bin
-      - sudo apt-get -y install google-chrome google-chrome-stable
+      - sudo apt-get -y install google-chrome-stable
     addons:
       apt:
         update: true
@@ -69,8 +69,8 @@ matrix:
     gemfile: gemfiles/rails_5.2.gemfile
   - rvm: 2.7.0
     gemfile: gemfiles/rails_6.0.gemfile
-#  - rvm: ruby-head
-#    gemfile: gemfiles/rails_master.gemfile
+  - rvm: ruby-head
+    gemfile: gemfiles/rails_master.gemfile
   - rvm: 2.6.2
     gemfile: gemfiles/mongoid_7.gemfile
     services:
